@@ -1,3 +1,5 @@
+// #include <vld.h>
+
 #include <vector>
 #include <algorithm>
 #include <sstream>
@@ -12,6 +14,8 @@ namespace fx
 	class Range
 	{
 	public:
+		virtual ~Range() {}
+
 		virtual bool empty() const = 0;
 		virtual Result* next() = 0;
 	};
@@ -20,13 +24,12 @@ namespace fx
 	{
 	public:
 		typedef Range NeighbourRange;
-		typedef std::auto_ptr<Range> NeighbourRangePointer;
+
 		virtual ~Result() {}
 		virtual NeighbourRange* neighbours() const = 0;
 		virtual std::string toString() const = 0;
+		virtual std::string toGeneralString() const = 0;
 	};
-
-	typedef std::auto_ptr<Result> ResultPointer;
 
 	class Context
 	{
@@ -34,10 +37,6 @@ namespace fx
 		virtual bool less(const Result&, const Result&) const = 0;
 		virtual Result* selectRandomResult() const = 0;
 	};
-
-	// сгенерировать начальную последовательность
-	// сгенерировать соседей
-	// реализовать функцию сравнения
 
 	Result* hillClimbing(Context& context)
 	{
@@ -49,15 +48,12 @@ namespace fx
 			while (!range->empty()) {
 				Result* neighbour = range->next();
 
-				// std::cout << "N: " << neighbour->toString() << std::endl;
-				/*if (bestNeighbour)
-					std::cout << "BN: " << bestNeighbour->toString() << std::endl;*/
-
 				if (bestNeighbour == 0 || context.less(*neighbour, *bestNeighbour)) {
 					delete bestNeighbour;
 					bestNeighbour = neighbour;
-				} else
+				} else {
 					delete neighbour;
+				}
 			}
 			delete range;
 
@@ -68,7 +64,9 @@ namespace fx
 				delete currentResult;
 				currentResult = bestNeighbour;
 			} else {
+				delete bestNeighbour;
 				std::cout << "R: " << currentResult->toString() << std::endl;
+				std::cout << currentResult->toGeneralString() << std::endl;
 				return currentResult;
 			}
 		}
@@ -89,6 +87,7 @@ namespace fx
 			double* containersWeights() const;
 
 			virtual std::string toString() const;
+			virtual std::string toGeneralString() const;
 
 		private:
 			Result* move(size_t item, size_t toContainer) const;
@@ -211,6 +210,7 @@ namespace fx
 
 		BPResult::BPResult(const BPContext* context, bool** matrix, size_t containersCount, double* containersWeights) : context_(context), matrix_(matrix), containersWeights_(containersWeights), containersCount_(containersCount)
 		{
+			// std::cout << "Created" << std::endl;
 			if (containersWeights_ == 0) {
 				containersWeights_ = new double[containersCount_];
 				for (size_t j = 0; j < containersCount_; ++j) {
@@ -224,29 +224,36 @@ namespace fx
 		}
 
 		BPResult::~BPResult() {
+			// std::cout << "Deleted" << std::endl;
 			delete[] containersWeights_;
-			for (size_t j = 0; j < containersCount_; ++j)
+			for (size_t j = 0; j < context_->itemsCount(); ++j)
 				delete[] matrix_[j];
 			delete[] matrix_;
 		}
 
 		BPResult::NeighbourRange* BPResult::neighbours() const
 		{
+			bool useSwaps = true;
 			std::vector<Result*> neighbours;
 			for (size_t i = 0; i < context_->itemsCount(); ++i) {
 				for (size_t j = 0; j < containersCount_; ++j) {
 					try {
-						neighbours.push_back(move(i, j));
+						Result* result = move(i, j);
+						/*if (((BPResult*)result)->containersCount() < containersCount_)
+							useSwaps = false;*/
+						neighbours.push_back(result);
 					} catch (int&) {
 					}
 				}
 			}
 
-			for (size_t i = 0; i < context_->itemsCount(); ++i) {
-				for (size_t j = i + 1; j < context_->itemsCount(); ++j) {
-					try {
-						neighbours.push_back(swap(i, j));
-					} catch (int&) {
+			if (useSwaps) {
+				for (size_t i = 0; i < context_->itemsCount(); ++i) {
+					for (size_t j = i + 1; j < context_->itemsCount(); ++j) {
+						try {
+							neighbours.push_back(swap(i, j));
+						} catch (int&) {
+						}
 					}
 				}
 			}
@@ -324,9 +331,10 @@ namespace fx
 			double* containersWeights = new double[containersCount_];
 			for (size_t i = 0; i < containersCount_; ++i)
 				containersWeights[i] = containersWeights_[i];
-			containersWeights[firstContainer] -= context_->item(firstItem);
+
+			containersWeights[firstContainer]  -= context_->item(firstItem);
 			containersWeights[secondContainer] += context_->item(firstItem);
-			containersWeights[firstContainer] += context_->item(secondItem);
+			containersWeights[firstContainer]  += context_->item(secondItem);
 			containersWeights[secondContainer] -= context_->item(secondItem);
 
 			return new BPResult(context_, matrix, containersCount_, containersWeights);
@@ -354,76 +362,40 @@ namespace fx
 				ss << containersWeights_[i] << ' ';
 			return ss.str();
 		}
+
+		std::string BPResult::toGeneralString() const {
+			std::stringstream ss;
+			ss << "Containers: " << containersCount_ << std::endl;
+			for (size_t i = 0; i < containersCount_; ++i) {
+				ss.width(5);
+				ss << i << ": ";
+				for (size_t j = 0; j < context_->itemsCount(); ++j) {
+					if (matrix_[j][i]) {
+						ss.width(5);
+						ss << j << ' ';
+					}
+				}
+				ss << std::endl;
+			}
+			return ss.str();
+		}
 	}
 }
+
 
 using namespace fx;
 using namespace fx::bin_packing;
 
 int main()
 {
-	double testData[60] = { 36.6,
-26.8,
-36.6,
-43.0,
-26.3,
-30.7,
-41.4,
-28.7,
-29.9,
-49.5,
-25.1,
-25.4,
-47.4,
-25.2,
-27.4,
-37.0,
-26.9,
-36.1,
-47.3,
-25.2,
-27.5,
-47.2,
-25.9,
-26.9,
-44.4,
-25.8,
-29.8,
-43.9,
-27.3,
-28.8,
-44.5,
-27.2,
-28.3,
-41.9,
-26.1,
-32.0,
-36.3,
-27.1,
-36.6,
-35.5,
-27.3,
-37.2,
-46.6,
-26.2,
-27.2,
-35.7,
-29.2,
-35.1,
-39.5,
-25.5,
-35.0,
-35.0,
-30.3,
-34.7,
-45.0,
-25.2,
-29.8,
-41.0,
-27.5,
-31.5 };
-	BPContext context(100, 60, testData);
-	hillClimbing(context);
-
-	std::cin.get();
+	double testData[121] = { 42,69,67,57,93,90,38,36,45,42,33,79,27,57,44,84,86,92,46,38,85,33,82,73,49,70,59,23,57,72,74,69,33,42,
+		28,46,30,64,29,74,41,49,55,98,80,32,25,38,82,30,35,39,57,84,62,50,55,27,30,36,20,78,47,26,45,41,58,98,91,96,73,84,37,93,91,
+		43,73,85,81,79,71,80,76,83,41,78,70,23,42,87,43,84,60,55,49,78,73,62,36,44,94,69,32,96,70,84,58,78,25,80,58,66,83,24,98,60,
+		42,43,43,39,25};
+	BPContext context(150, 100, testData);
+	Result* result = hillClimbing(context);
+	delete result;
+	
+	// std::cin.get();
+	return 0;
 }
