@@ -40,7 +40,7 @@ namespace bin_packing
 
 	ResultInterface* Result::clone() const
 	{
-		return new Result(context_, ::clone(matrix_, context_->itemsCount(), containersCount_), containersCount_, ::clone(containersWeights_, containersCount_));
+		return new Result(context_, ::clone(matrix_, context_->itemsCount(), containersCount_), containersCount_/*, ::clone(containersWeights_, containersCount_)*/);
 	}
 
 	Result::NeighbourRange* Result::neighbours() const

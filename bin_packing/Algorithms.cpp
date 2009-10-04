@@ -33,10 +33,11 @@ namespace bin_packing
 
 			clock_t end = clock();
 
-			std::cout << "Clock time: " << (end - begin) << std::endl;
+			std::cout << "Clock time: " << (end - begin) << '\n';
 
-			if (bestNeighbour)
-				std::cout << "BN: " << bestNeighbour->toString() << std::endl;
+			if (bestNeighbour) {
+				std::cout << "BN: " << bestNeighbour->toString() << '\n';
+			}
 
 			if (bestNeighbour && context.less(*bestNeighbour, *currentResult)) {
 				ResultInterface* oldResult = currentResult;
@@ -49,8 +50,8 @@ namespace bin_packing
 					delete bestNeighbour;
 
 				delete currentResult;
-				std::cout << "R: " << result->toString() << std::endl;
-				std::cout << result->toGeneralString() << std::endl;
+				std::cout << "R: " << result->toString() << '\n';
+				// std::cout << result->toGeneralString() << std::endl;
 				return result;
 			}
 		}

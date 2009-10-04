@@ -56,7 +56,7 @@ namespace bin_packing
 
 	ResultInterface* MoveResult::clone() const
 	{
-		return new Result(context(), createMatrix(), containersCount_, ::clone(containersWeights_, containersCount_));
+		return new Result(context(), createMatrix(), containersCount_/*, ::clone(containersWeights_, containersCount_)*/);
 	}
 
 	const bool * const * MoveResult::matrix() const

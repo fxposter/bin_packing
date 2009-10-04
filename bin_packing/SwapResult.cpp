@@ -50,7 +50,7 @@ namespace bin_packing
 
 	ResultInterface* SwapResult::clone() const
 	{
-		return new Result(context(), createMatrix(), containersCount(), ::clone(containersWeights_, containersCount()));
+		return new Result(context(), createMatrix(), containersCount()/*, ::clone(containersWeights_, containersCount())*/);
 	}
 
 	const bool * const * SwapResult::matrix() const
