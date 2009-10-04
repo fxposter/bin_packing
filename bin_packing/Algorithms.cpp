@@ -13,6 +13,8 @@ namespace bin_packing
 	{
 		ResultInterface* currentResult = context.createRandomResult();
 
+		std::cout << "F: " << currentResult->toString() << '\n';
+
 		while (true) {
 			ResultInterface::NeighbourRange* range = currentResult->neighbours();
 			ResultInterface* bestNeighbour = 0;
@@ -33,10 +35,10 @@ namespace bin_packing
 
 			clock_t end = clock();
 
-			std::cout << "Clock time: " << (end - begin) << '\n';
+			//std::cout << "Clock time: " << (end - begin) << '\n';
 
 			if (bestNeighbour) {
-				std::cout << "BN: " << bestNeighbour->toString() << '\n';
+				//std::cout << "BN: " << bestNeighbour->toString() << '\n';
 			}
 
 			if (bestNeighbour && context.less(*bestNeighbour, *currentResult)) {

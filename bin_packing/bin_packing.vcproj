@@ -225,6 +225,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RandomGenerators.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Range.h"
 				>
 			</File>

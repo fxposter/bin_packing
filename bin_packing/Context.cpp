@@ -3,6 +3,8 @@
 #include "Result.h"
 #include "Clone.h"
 
+#include "RandomGenerators.h"
+
 #include <algorithm>
 #include <functional>
 
@@ -51,18 +53,13 @@ namespace bin_packing
 
 	ResultInterface* Context::createRandomResult() const
 	{
-		bool** matrix = new bool*[itemsCount_];
-		for (size_t i = 0; i < itemsCount_; ++i) {
-			matrix[i] = new bool[itemsCount_];
-			for (size_t j = 0; j < itemsCount_; ++j) {
-				if (i == j)
-					matrix[i][j] = true;
-				else
-					matrix[i][j] = false;
-			}
-		}
+		bool** matrix = 0;
+		size_t containersCount = 0;
 
-		return new Result(this, matrix, itemsCount_);
+		FFRandomGenerator generator(itemsCount_, items_, containerCapacity_);
+		generator.generate(matrix, containersCount);
+
+		return new Result(this, matrix, containersCount);
 	}
 
 	size_t Context::itemsCount() const

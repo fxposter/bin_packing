@@ -4,6 +4,7 @@
 namespace bin_packing
 {
 	class ResultInterface;
+	class RandomGenerator;
 
 	class Context
 	{
@@ -21,6 +22,8 @@ namespace bin_packing
 		double containerCapacity_;
 		size_t itemsCount_;
 		double* items_;
+
+		RandomGenerator* generator_;
 	};
 }
 
