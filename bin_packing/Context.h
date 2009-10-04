@@ -1,3 +1,6 @@
+#ifndef CONTEXT_H
+#define CONTEXT_H
+
 namespace bin_packing
 {
 	class ResultInterface;
@@ -10,9 +13,9 @@ namespace bin_packing
 		bool less(const ResultInterface& firstResult, const ResultInterface& secondResult) const;
 		virtual ResultInterface* createRandomResult() const;
 
-		inline size_t itemsCount() const;
-		inline double itemWeight(size_t i) const;
-		inline double containerCapacity() const;
+		size_t itemsCount() const;
+		double itemWeight(size_t i) const;
+		double containerCapacity() const;
 
 	private:
 		double containerCapacity_;
@@ -20,3 +23,5 @@ namespace bin_packing
 		double* items_;
 	};
 }
+
+#endif // CONTEXT_H

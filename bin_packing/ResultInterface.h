@@ -1,10 +1,18 @@
+#ifndef RESULT_INTERFACE_H
+#define RESULT_INTERFACE_H
+
+#include <string>
+
 namespace bin_packing
 {
 	class Context;
+	class Range;
 
 	class ResultInterface
 	{
 	public:
+		typedef Range NeighbourRange;
+
 		virtual ~ResultInterface() {};
 		virtual NeighbourRange* neighbours() const = 0;
 
@@ -17,5 +25,9 @@ namespace bin_packing
 		virtual ResultInterface* clone() const = 0;
 
 		virtual const Context* context() const = 0;
+
+		virtual const bool * const * matrix() const = 0;
 	};
 }
+
+#endif RESULT_INTERFACE_H

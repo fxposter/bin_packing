@@ -1,4 +1,10 @@
 #include "Context.h"
+#include "ResultInterface.h"
+#include "Result.h"
+#include "Clone.h"
+
+#include <algorithm>
+#include <functional>
 
 namespace bin_packing
 {
@@ -16,15 +22,14 @@ namespace bin_packing
 
 		size_t containers = r1.containersCount();
 
-		double* r1w = new double[containers];
-		std::copy(r1.containersWeights(), r1.containersWeights() + containers, r1w);
-		double* r2w = new double[containers];
-		std::copy(r2.containersWeights(), r2.containersWeights() + containers, r2w);
+		double* r1w = ::clone(r1.containersWeights(), containers);
+		double* r2w =::clone(r2.containersWeights(), containers);
 
 		for (size_t i = 0; i < containers; ++i) {
 			r1w[i] = containerCapacity_ - r1w[i];
 			r2w[i] = containerCapacity_ - r2w[i];
 		}
+
 		std::sort(r1w, r1w + containers, std::greater<double>());
 		std::sort(r2w, r2w + containers, std::greater<double>());
 
@@ -44,7 +49,7 @@ namespace bin_packing
 
 	}
 
-	Result* Context::selectRandomResult() const
+	ResultInterface* Context::createRandomResult() const
 	{
 		bool** matrix = new bool*[itemsCount_];
 		for (size_t i = 0; i < itemsCount_; ++i) {
@@ -65,7 +70,7 @@ namespace bin_packing
 		return itemsCount_;
 	}
 
-	double Context::item(size_t i) const
+	double Context::itemWeight(size_t i) const
 	{
 		return items_[i];
 	}
