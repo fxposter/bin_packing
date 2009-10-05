@@ -4,6 +4,10 @@
 #include "Result.h"
 
 #include <sstream>
+#include <cmath>
+
+#include <functional>
+#include <algorithm>
 
 namespace bin_packing
 {
@@ -14,7 +18,7 @@ namespace bin_packing
 		containersWeights_[fromContainer] -= origin->context()->itemWeight(item);
 		containersWeights_[toContainer] += origin->context()->itemWeight(item);
 
-		if (containersWeights_[fromContainer] == 0.0) {
+        if (containersWeights_[fromContainer] == 0.0) {
 			--containersCount_;
 
 			for (size_t j = fromContainer; j < containersCount_; ++j)
@@ -39,10 +43,18 @@ namespace bin_packing
 	}
 
 	std::string MoveResult::toString() const {
+		double* rw = ::clone(containersWeights_, containersCount());
+
+		for (size_t i = 0; i < containersCount(); ++i)
+			rw[i] = context()->containerCapacity() - rw[i];
+		std::sort(rw, rw + containersCount(), std::greater<double>());
+
 		std::stringstream ss;
-		ss << "(" << containersCount_ << ") ";
-		for (size_t i = 0; i < containersCount_; ++i)
-			ss << containersWeights_[i] << ' ';
+		ss << "(" << containersCount() << ") ";
+		for (size_t i = 0; i < containersCount(); ++i)
+			ss << rw[i] << ' ';
+        delete[] rw;
+
 		return ss.str();
 	}
 

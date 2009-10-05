@@ -1,4 +1,4 @@
-#include <vld.h>
+// #include <vld.h>
 
 #include <iostream>
 #include <ctime>
@@ -62,17 +62,17 @@ private:
 int main()
 {
 	std::srand(static_cast<unsigned int>(std::time(0)));
-	//DataLoader loader("data/binpack1.txt");
+	DataLoader loader("data/binpack2.txt");
 	//for (size_t i = 0; i < 20; ++i) {
-		//Context* context = loader.load(0);
-	double data[8] = {1, 3,4, 5, 5,6, 7, 9 };
+		Context* context = loader.load(1);
+	// double data[8] = {1, 3,4, 5, 5,6, 7, 9 };
 	//double data[8] = {7, 5, 3, 9, 1, 6, 5, 4 };
 	//for (int i = 0; i < 10; ++i) {
-		Context context(10, 8,  data);
-		ResultInterface* result = hillClimbing(context);
+		// Context context(10, 8,  data);
+		ResultInterface* result = hillClimbing(*context);
 		delete result;
 	//}
-	// delete context;
+	delete context;
 	//}
 	
 	std::cin.get();

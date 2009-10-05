@@ -5,6 +5,9 @@
 
 #include <sstream>
 
+#include <functional>
+#include <algorithm>
+
 namespace bin_packing
 {
 	SwapResult::SwapResult(const ResultInterface* origin, size_t firstItem, size_t firstContainer, size_t secondItem, size_t secondContainer) : origin_(origin), firstItem_(firstItem), firstContainer_(firstContainer), secondItem_(secondItem), secondContainer_(secondContainer) {
@@ -33,10 +36,18 @@ namespace bin_packing
 	}
 
 	std::string SwapResult::toString() const {
+		double* rw = ::clone(containersWeights_, containersCount());
+
+		for (size_t i = 0; i < containersCount(); ++i)
+			rw[i] = context()->containerCapacity() - rw[i];
+		std::sort(rw, rw + containersCount(), std::greater<double>());
+
 		std::stringstream ss;
 		ss << "(" << containersCount() << ") ";
 		for (size_t i = 0; i < containersCount(); ++i)
-			ss << containersWeights_[i] << ' ';
+			ss << rw[i] << ' ';
+        delete[] rw;
+
 		return ss.str();
 	}
 

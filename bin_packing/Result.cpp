@@ -8,6 +8,9 @@
 #include <vector>
 #include <sstream>
 
+#include <functional>
+#include <algorithm>
+
 namespace bin_packing
 {
 	Result::Result(const Context* context, bool** matrix, size_t containersCount, double* containersWeights) : context_(context), matrix_(matrix), containersWeights_(containersWeights), containersCount_(containersCount)
@@ -130,10 +133,18 @@ namespace bin_packing
 	}
 
 	std::string Result::toString() const {
+        double* rw = ::clone(containersWeights_, containersCount_);
+
+		for (size_t i = 0; i < containersCount_; ++i)
+			rw[i] = context_->containerCapacity() - rw[i];
+		std::sort(rw, rw + containersCount_, std::greater<double>());
+
 		std::stringstream ss;
 		ss << "(" << containersCount_ << ") ";
 		for (size_t i = 0; i < containersCount_; ++i)
-			ss << containersWeights_[i] << ' ';
+			ss << rw[i] << ' ';
+        delete[] rw;
+
 		return ss.str();
 	}
 

@@ -25,7 +25,7 @@ namespace bin_packing
 		size_t containers = r1.containersCount();
 
 		double* r1w = ::clone(r1.containersWeights(), containers);
-		double* r2w =::clone(r2.containersWeights(), containers);
+		double* r2w = ::clone(r2.containersWeights(), containers);
 
 		for (size_t i = 0; i < containers; ++i) {
 			r1w[i] = containerCapacity_ - r1w[i];
