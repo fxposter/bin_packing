@@ -26,6 +26,8 @@ namespace bin_packing
 
 		virtual const bool * const * matrix() const;
 
+        virtual std::vector<size_t> changedItems() const;
+
 	private:
 		bool** copyMatrix() const;
 

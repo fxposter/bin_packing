@@ -90,4 +90,11 @@ namespace bin_packing
 
 		return matrix;
 	}
+
+    std::vector<size_t> MoveResult::changedItems() const
+    {
+        std::vector<size_t> result;
+        result.push_back(item_);
+        return result;
+    }
 }

@@ -2,6 +2,7 @@
 #define RESULT_INTERFACE_H
 
 #include <string>
+#include <vector>
 
 namespace bin_packing
 {
@@ -27,6 +28,8 @@ namespace bin_packing
 		virtual const Context* context() const = 0;
 
 		virtual const bool * const * matrix() const = 0;
+
+        virtual std::vector<size_t> changedItems() const = 0;
 	};
 }
 

@@ -78,4 +78,12 @@ namespace bin_packing
 
 		return matrix;
 	}
+
+    std::vector<size_t> SwapResult::changedItems() const
+    {
+        std::vector<size_t> result;
+        result.push_back(firstItem_);
+        result.push_back(secondItem_);
+        return result;
+    }
 }

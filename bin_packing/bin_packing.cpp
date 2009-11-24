@@ -47,7 +47,7 @@ public:
 				for (size_t j = 0; j < itemsCount; ++j)
 					file >> items[j];
 				file.close();
-				return new Context(containerCapacity, itemsCount, items);
+				return new Context(containerCapacity, itemsCount, items, bestKnownNumberOfContainers);
 			}
 		}
 
@@ -62,18 +62,21 @@ private:
 int main()
 {
 	std::srand(static_cast<unsigned int>(std::time(0)));
-	DataLoader loader("data/binpack2.txt");
-	//for (size_t i = 0; i < 20; ++i) {
-		Context* context = loader.load(1);
-	// double data[8] = {1, 3,4, 5, 5,6, 7, 9 };
-	//double data[8] = {7, 5, 3, 9, 1, 6, 5, 4 };
-	//for (int i = 0; i < 10; ++i) {
-		// Context context(10, 8,  data);
-		ResultInterface* result = hillClimbing(*context);
-		delete result;
-	//}
-	delete context;
-	//}
+	DataLoader loader("data/binpack1.txt");
+	double data[8] = {7, 5, 3, 9, 1, 6, 5, 4 };
+    size_t count = 0;
+    // for (int i = 0; i < 10; ++i) {
+    int i = 0;
+	    // Context* context = new Context(10, 8,  data);
+        Context* context = loader.load(12);
+        ResultInterface* result = tabuSearch(*context);
+        if (result->containersCount() != context->bestKnownNumberOfContainers())
+            count++;
+        std::cout << i << " - " << result->containersCount() << " - " << context->bestKnownNumberOfContainers() << '\n';
+	    delete result;
+        delete context;
+    // }
+    std::cout << "C: " << count << '\n';
 	
 	std::cin.get();
 	return 0;

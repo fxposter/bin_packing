@@ -109,7 +109,7 @@ namespace bin_packing
 	ResultInterface* Result::swap(size_t firstItem, size_t secondItem) const {
 		size_t firstContainer = findItem(firstItem);
 		size_t secondContainer = findItem(secondItem);
-		if (firstContainer == secondContainer || firstItem == secondItem)
+		if (firstContainer == secondContainer || firstItem == secondItem || context_->itemWeight(secondItem) == context_->itemWeight(firstItem))
 			throw 1;
 		checkContainerWeight(containersWeights_[firstContainer] + context_->itemWeight(secondItem) - context_->itemWeight(firstItem));
 		checkContainerWeight(containersWeights_[secondContainer] + context_->itemWeight(firstItem) - context_->itemWeight(secondItem));
@@ -169,4 +169,9 @@ namespace bin_packing
 	{
 		return matrix_;
 	}
+
+    std::vector<size_t> Result::changedItems() const
+    {
+        return std::vector<size_t>();
+    }
 }

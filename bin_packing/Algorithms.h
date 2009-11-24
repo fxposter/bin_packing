@@ -4,4 +4,5 @@ namespace bin_packing
 	class Context;
 
 	ResultInterface* hillClimbing(Context& context);
+    ResultInterface* tabuSearch(Context& context);
 }

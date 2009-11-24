@@ -10,8 +10,8 @@
 
 namespace bin_packing
 {
-	Context::Context(double containerCapacity, size_t itemsCount, double* items) : containerCapacity_(containerCapacity),
-		itemsCount_(itemsCount), items_(items)
+	Context::Context(double containerCapacity, size_t itemsCount, double* items, size_t bestKnownNumberOfContainers) : containerCapacity_(containerCapacity),
+		itemsCount_(itemsCount), items_(items), bestKnownNumberOfContainers_(bestKnownNumberOfContainers)
 	{
 	}
 
@@ -65,6 +65,11 @@ namespace bin_packing
 	size_t Context::itemsCount() const
 	{
 		return itemsCount_;
+	}
+
+    size_t Context::bestKnownNumberOfContainers() const
+	{
+		return bestKnownNumberOfContainers_;
 	}
 
 	double Context::itemWeight(size_t i) const
