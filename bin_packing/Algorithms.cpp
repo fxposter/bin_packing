@@ -140,7 +140,7 @@ namespace bin_packing
 
 			if (bestNeighbour) {
                 if (context.less(*currentResult, *bestNeighbour)) {
-                    std::cout << "------------------------------------Bad result\n";
+                    std::cout << "----------------------------------Bad result----------------------------------\n";
                 }
 
 				ResultInterface* oldResult = currentResult;
@@ -154,7 +154,6 @@ namespace bin_packing
 				delete bestNeighbour;
 				delete oldResult;
 			} else {
-
                 if (neighbourWithMinTabu) {
                     ResultInterface* oldResult = currentResult;
 				    currentResult = neighbourWithMinTabu->clone();
@@ -163,23 +162,6 @@ namespace bin_packing
                 } else {
                     break;
                 }
-
-                // break; // TODO
-                /*
-				ResultInterface* result = currentResult->clone();
-				if (bestNeighbour)
-					delete bestNeighbour;
-
-				delete currentResult;
-				std::cout << "R: " << result->toString() << '\n';
-                std::cout << "S: " << stepsCount << '\n';
-				// std::cout << result->toGeneralString() << std::endl;
-
-                for (size_t i = 0; i < containersCount; ++i)
-                    delete[] shortTermMemory[i];
-                delete[] shortTermMemory;
-				return result;
-                */
 			}
 
             for (size_t i = 0; i < containersCount; ++i)

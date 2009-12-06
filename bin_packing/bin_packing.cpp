@@ -61,14 +61,13 @@ private:
 
 int main()
 {
-	std::srand(0);//static_cast<unsigned int>(std::time(0)));
+	std::srand(static_cast<unsigned int>(std::time(0)));
 	DataLoader loader("data/binpack1.txt");
 	double data[8] = {7, 5, 3, 9, 1, 6, 5, 4 };
     size_t count = 0;
     // for (int i = 0; i < 20; ++i) {
     { int i = 3;
 	    //Context* context = new Context(10, 8,  data, 4);
-        std::srand(0);//static_cast<unsigned int>(std::time(0)));
         Context* context = loader.load(i);
         ResultInterface* result = tabuSearch(*context);
         if (result->containersCount() != context->bestKnownNumberOfContainers())
