@@ -29,7 +29,8 @@ namespace bin_packing
 
 		virtual const bool * const * matrix() const = 0;
 
-        virtual std::vector<size_t> changedItems() const = 0;
+        virtual std::vector< std::pair<size_t, size_t> > notAllowedToSet() const = 0;
+        virtual bool deletedContainer(size_t& containter) const = 0;
 	};
 }
 

@@ -61,12 +61,18 @@ namespace bin_packing
 
     ResultInterface* tabuSearch(Context& context)
 	{
-        char* shortTermMemory = new char[context.itemsCount()];
-        char tabuTenure = 3; // static_cast<char>(std::sqrt(static_cast<double>(context.itemsCount())) * 1.2);
-
-        std::fill(shortTermMemory, shortTermMemory + context.itemsCount(), 0);
-
 		ResultInterface* currentResult = context.createRandomResult();
+
+        size_t containersCount = currentResult->containersCount();
+        char** shortTermMemory = new char*[containersCount];
+        for (size_t i = 0; i < containersCount; ++i) {
+            shortTermMemory[i] = new char[context.itemsCount()];
+            std::fill(shortTermMemory[i], shortTermMemory[i] + context.itemsCount(), 0);
+        }
+
+        char tabuTenure = static_cast<char>(std::sqrt(static_cast<double>(context.itemsCount() * containersCount)) * 1.2);
+        std::cout << "Tabu tenure: " << static_cast<int>(tabuTenure) << '\n';
+
         ResultInterface* bestResult = currentResult->clone();
 
 		std::cout << "F: " << currentResult->toString() << '\n';
@@ -78,17 +84,28 @@ namespace bin_packing
 
 			ResultInterface::NeighbourRange* range = currentResult->neighbours();
 			ResultInterface* bestNeighbour = 0;
+            ResultInterface* neighbourWithMinTabu = 0;
+            int minTabu = 256;
 
 			while (!range->empty()) {
 				ResultInterface* neighbour = range->next();
 
-                const std::vector<size_t>& changedItems = neighbour->changedItems();
-                for (std::vector<size_t>::const_iterator i = changedItems.begin(); i != changedItems.end(); ++i)
-                    if (shortTermMemory[*i] > 0) {
+                int overallTabu = 0;
+                const std::vector< std::pair<size_t, size_t> >& notAllowedToSet = neighbour->notAllowedToSet();
+                for (std::vector< std::pair<size_t, size_t> >::const_iterator i = notAllowedToSet.begin(); i != notAllowedToSet.end(); ++i)
+                    if (shortTermMemory[i->first][i->second] > 0)
+                        overallTabu += shortTermMemory[i->first][i->second];
+
+                if (overallTabu > 0) {
+                    if (overallTabu < minTabu) {
+                        delete neighbourWithMinTabu;
+                        neighbourWithMinTabu = neighbour;
+                        neighbour = 0;
+                    } else {
                         delete neighbour;
                         neighbour = 0;
-                        break;
                     }
+                }
 
                 if (neighbour) {
 				    if (bestNeighbour == 0 || context.less(*neighbour, *bestNeighbour)) {
@@ -104,18 +121,26 @@ namespace bin_packing
 			if (bestNeighbour) {
 				std::cout << "BN: " << bestNeighbour->toString() << '\n';
 
-                const std::vector<size_t>& changedItems = bestNeighbour->changedItems();
-                // std::cout << "Changed items: ";
-                for (std::vector<size_t>::const_iterator i = changedItems.begin(); i != changedItems.end(); ++i) {
-                    shortTermMemory[*i] += tabuTenure;
-                    // std::cout << *i << ", ";
+                size_t deletedContainer = 0;
+                if (bestNeighbour->deletedContainer(deletedContainer)) {
+                    char* temp = shortTermMemory[deletedContainer];
+                    for (size_t i = deletedContainer; i < containersCount; ++i)
+                        shortTermMemory[i] = shortTermMemory[i + 1];
+                    shortTermMemory[containersCount - 1] = temp;
+                } else {
+                    const std::vector< std::pair<size_t, size_t> >& notAllowedToSet = bestNeighbour->notAllowedToSet();
+                    std::cout << "Changed items: ";
+                    for (std::vector< std::pair<size_t, size_t> >::const_iterator i = notAllowedToSet.begin(); i != notAllowedToSet.end(); ++i) {
+                        shortTermMemory[i->first][i->second] += tabuTenure + 1;
+                        std::cout << "(" << i->first << ", " << i->second << "), ";
+                    }
+                    std::cout << '\n';
                 }
-                // std::cout << '\n';
 			}
 
 			if (bestNeighbour) {
                 if (context.less(*currentResult, *bestNeighbour)) {
-                    std::cout << "Bad result\n";
+                    std::cout << "------------------------------------Bad result\n";
                 }
 
 				ResultInterface* oldResult = currentResult;
@@ -129,7 +154,18 @@ namespace bin_packing
 				delete bestNeighbour;
 				delete oldResult;
 			} else {
-                break; // TODO
+
+                if (neighbourWithMinTabu) {
+                    ResultInterface* oldResult = currentResult;
+				    currentResult = neighbourWithMinTabu->clone();
+                    delete neighbourWithMinTabu;
+				    delete oldResult;
+                } else {
+                    break;
+                }
+
+                // break; // TODO
+                /*
 				ResultInterface* result = currentResult->clone();
 				if (bestNeighbour)
 					delete bestNeighbour;
@@ -139,13 +175,17 @@ namespace bin_packing
                 std::cout << "S: " << stepsCount << '\n';
 				// std::cout << result->toGeneralString() << std::endl;
 
+                for (size_t i = 0; i < containersCount; ++i)
+                    delete[] shortTermMemory[i];
                 delete[] shortTermMemory;
 				return result;
+                */
 			}
 
-            for (size_t i = 0; i < context.itemsCount(); ++i)
-                if (shortTermMemory[i] > 0)
-                    --shortTermMemory[i];
+            for (size_t i = 0; i < containersCount; ++i)
+                for (size_t j = 0; j < context.itemsCount(); ++j)
+                    if (shortTermMemory[i][j] > 0)
+                        --shortTermMemory[i][j];
 		}
 
         std::cout << "R: " << bestResult->toString() << '\n';

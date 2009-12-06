@@ -79,11 +79,16 @@ namespace bin_packing
 		return matrix;
 	}
 
-    std::vector<size_t> SwapResult::changedItems() const
+    std::vector< std::pair<size_t, size_t> > SwapResult::notAllowedToSet() const
     {
-        std::vector<size_t> result;
-        result.push_back(firstItem_);
-        result.push_back(secondItem_);
+        std::vector< std::pair<size_t, size_t> > result;
+        result.push_back(std::make_pair(firstContainer_, firstItem_));
+        result.push_back(std::make_pair(secondContainer_, secondItem_));
         return result;
+    }
+
+    bool SwapResult::deletedContainer(size_t& containter) const
+    {
+        return false;
     }
 }

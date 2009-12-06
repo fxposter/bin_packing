@@ -18,8 +18,10 @@ namespace bin_packing
 		containersWeights_[fromContainer] -= origin->context()->itemWeight(item);
 		containersWeights_[toContainer] += origin->context()->itemWeight(item);
 
+        deletedContainer_ = false;
         if (containersWeights_[fromContainer] == 0.0) {
 			--containersCount_;
+            deletedContainer_ = true;
 
 			for (size_t j = fromContainer; j < containersCount_; ++j)
 				containersWeights_[j] = containersWeights_[j + 1];
@@ -91,10 +93,19 @@ namespace bin_packing
 		return matrix;
 	}
 
-    std::vector<size_t> MoveResult::changedItems() const
+    std::vector< std::pair<size_t, size_t> > MoveResult::notAllowedToSet() const
     {
-        std::vector<size_t> result;
-        result.push_back(item_);
+        std::vector< std::pair<size_t, size_t> > result;
+        result.push_back(std::make_pair(fromContainer_, item_));
         return result;
+    }
+
+    bool MoveResult::deletedContainer(size_t& containter) const
+    {
+        if (deletedContainer_) {
+            containter = fromContainer_;
+            return true;
+        }
+        return false;
     }
 }

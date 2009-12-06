@@ -22,7 +22,8 @@ namespace bin_packing
 		ResultInterface* clone() const;
 		const bool * const * matrix() const;
 
-        virtual std::vector<size_t> changedItems() const;
+        std::vector< std::pair<size_t, size_t> > notAllowedToSet() const;
+        bool deletedContainer(size_t& containter) const;
 
 	private:
 		bool** createMatrix() const;

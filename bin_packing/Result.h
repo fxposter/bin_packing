@@ -26,7 +26,8 @@ namespace bin_packing
 
 		virtual const bool * const * matrix() const;
 
-        virtual std::vector<size_t> changedItems() const;
+        std::vector< std::pair<size_t, size_t> > notAllowedToSet() const;
+        bool deletedContainer(size_t& containter) const;
 
 	private:
 		bool** copyMatrix() const;

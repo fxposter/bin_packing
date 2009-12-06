@@ -170,8 +170,13 @@ namespace bin_packing
 		return matrix_;
 	}
 
-    std::vector<size_t> Result::changedItems() const
+    std::vector< std::pair<size_t, size_t> > Result::notAllowedToSet() const
     {
-        return std::vector<size_t>();
+        return std::vector< std::pair<size_t, size_t> >();
+    }
+
+    bool Result::deletedContainer(size_t& containter) const
+    {
+        return false;
     }
 }
