@@ -61,7 +61,7 @@ private:
 
 int main()
 {
-	std::srand(static_cast<unsigned int>(std::time(0)));
+	std::srand(0);//static_cast<unsigned int>(std::time(0)));
 	DataLoader loader("data/binpack1.txt");
 	double data[8] = {7, 5, 3, 9, 1, 6, 5, 4 };
     size_t count = 0;

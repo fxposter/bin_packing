@@ -78,7 +78,7 @@ namespace bin_packing
 		std::cout << "F: " << currentResult->toString() << '\n';
 
         size_t stepsCount = 0;
-        size_t maxSteps = 300;
+        size_t maxSteps = 200;
 		while (maxSteps-- > 0) {
             stepsCount++;
 
