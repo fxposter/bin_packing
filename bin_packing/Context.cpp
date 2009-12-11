@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <functional>
 
+#include <iostream>
+#include <cmath>
+
 namespace bin_packing
 {
 	Context::Context(double containerCapacity, size_t itemsCount, double* items, size_t bestKnownNumberOfContainers) : containerCapacity_(containerCapacity),
@@ -17,6 +20,26 @@ namespace bin_packing
 
 	bool Context::less(const ResultInterface& r1, const ResultInterface& r2) const
 	{
+        const double* r1w = r1.containersWeights();
+		const double* r2w = r2.containersWeights();
+
+        double s1 = 0.0;
+        for (size_t i = 0; i < r1.containersCount(); ++i) {
+            s1 += std::pow(r1w[i] / containerCapacity(), 2);
+        }
+        s1 /= r1.containersCount();
+
+        double s2 = 0.0;
+        for (size_t i = 0; i < r2.containersCount(); ++i) {
+            s2 += std::pow(r2w[i] / containerCapacity(), 2);
+        }
+        s2 /= r2.containersCount();
+
+        // std::cout << s1 << " - " << s2 << '\n';
+
+        return s1 > s2;
+
+        /*
 		if (r1.containersCount() < r2.containersCount())
 			return true;
 		else if (r1.containersCount() > r2.containersCount())
@@ -47,7 +70,7 @@ namespace bin_packing
 		delete[] r1w;
 		delete[] r2w;
 
-		return result;
+		return result;*/
 
 	}
 

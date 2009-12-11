@@ -69,7 +69,7 @@ int main()
     { int i = 3;
 	    //Context* context = new Context(10, 8,  data, 4);
         Context* context = loader.load(i);
-        ResultInterface* result = tabuSearch(*context);
+        ResultInterface* result = hillClimbing(*context);
         if (result->containersCount() != context->bestKnownNumberOfContainers())
             count++;
         std::cout << i << " - " << result->containersCount() << " - " << context->bestKnownNumberOfContainers() << '\n';

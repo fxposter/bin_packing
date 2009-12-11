@@ -36,7 +36,7 @@ namespace bin_packing
 			delete range;
 
 			if (bestNeighbour) {
-				// std::cout << "BN: " << bestNeighbour->toString() << '\n';
+				std::cout << "BN: " << bestNeighbour->toString() << '\n';
 			}
 
 			if (bestNeighbour && context.less(*bestNeighbour, *currentResult)) {
