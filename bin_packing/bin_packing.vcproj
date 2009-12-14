@@ -216,7 +216,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ComparableResult.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Context.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Exceptions.h"
 				>
 			</File>
 			<File
@@ -241,6 +249,10 @@
 			</File>
 			<File
 				RelativePath=".\SwapResult.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TemporaryResult.h"
 				>
 			</File>
 		</Filter>
