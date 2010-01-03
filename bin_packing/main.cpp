@@ -152,6 +152,7 @@ public:
 
     Solution(std::vector<Bin> bins);
     double fitness() const;
+    std::vector<Bin>& bins();
     const std::vector<Bin>& bins() const;
 private:
     std::vector<Bin> bins_;
@@ -165,6 +166,11 @@ Solution::Solution(std::vector<Bin> bins) : bins_(bins)
 double Solution::fitness() const
 {
     return fitness_;
+}
+
+std::vector<Bin>& Solution::bins()
+{
+    return bins_;
 }
 
 const std::vector<Bin>& Solution::bins() const
@@ -329,6 +335,11 @@ public:
         int i = 10;
     }
 
+    void mutation(Solution& solution)
+    {
+        mutation(solution.bins());
+    }
+private:
     void mutation(std::vector<Bin>& bins)
     {
         std::vector<ItemPair> leftOutItems;
@@ -400,7 +411,7 @@ int main()
     items.push_back(ItemPair(7, 4));
     Context context(10, items, 4);
 
-    size_t t = std::time(0);
+    size_t t = static_cast<size_t>(std::time(0));
 
     std::cout << t << '\n';
 

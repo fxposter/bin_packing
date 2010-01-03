@@ -174,87 +174,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Algorithms.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\bin_packing.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Context.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MoveResult.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Range.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Result.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SwapResult.cpp"
-				>
-			</File>
+				RelativePath=".\main.cpp"
+				/>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\Algorithms.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Clone.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ComparableResult.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Context.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Exceptions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MoveResult.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RandomGenerators.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Range.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Result.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ResultInterface.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SwapResult.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TemporaryResult.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
