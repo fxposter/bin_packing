@@ -37,6 +37,7 @@ public:
     bool has(const ItemPair& item) const;
     double size() const;
     const std::vector<ItemPair>& items() const;
+    double fitness() const;
 
 private:
     std::vector<ItemPair> items_;
@@ -51,6 +52,11 @@ Bin::Bin(double capacity) : capacity_(capacity), size_(0.0)
 Bin::Bin(double capacity, const ItemPair& item) : capacity_(capacity), size_(0.0)
 {
     insert(item);
+}
+
+double Bin::fitness() const
+{
+    return size() / capacity_;
 }
 
 void Bin::insert(const ItemPair& item)
@@ -159,8 +165,11 @@ private:
     double fitness_;
 };
 
-Solution::Solution(std::vector<Bin> bins) : bins_(bins)
+Solution::Solution(std::vector<Bin> bins) : bins_(bins), fitness_(0.0)
 {
+    for (std::vector<Bin>::const_iterator i = bins_.begin(); i != bins_.end(); ++i)
+        fitness_ += i->fitness();
+    fitness_ /= bins_.size();
 }
 
 double Solution::fitness() const
@@ -258,9 +267,31 @@ public:
     }
 };
 
+class Random
+{
+public:
+    int nextInt(int max)
+    {
+        return static_cast<int>(nextDouble() * max);
+    }
+
+    size_t nextUnsignedInt(size_t max)
+    {
+        return static_cast<size_t>(nextDouble() * max);
+    }
+
+    double nextDouble()
+    {
+        return static_cast<double>(std::rand()) / RAND_MAX;
+    }
+};
+
 class GeneticAlgorithm
 {
 public:
+    static double P_BETTER;
+    static double P_C;
+
     GeneticAlgorithm(Context& context) : context_(context) {
     }
 
@@ -274,32 +305,83 @@ public:
 		    algorithm.fill(bins);
 		    Solution solution(bins);
 
-		    bool newSolution = true;
-		    for (std::vector<Solution>::iterator s = population.begin(); s != population.end(); ++s) {
-			    if (*s == solution) {
-				    newSolution = false;
-				    break;
-			    }
-		    }
-		    if (newSolution)
+            if (!populationIncludeSolution(population, solution))
 			    population.push_back(solution);
 	    }
 
-	    crossover(population[0], population[2]);
+        size_t best = 0;
+        for (size_t i = 1; i < population.size(); ++i)
+            if (population[i].fitness() > population[best].fitness())
+			    best = i;
+
+        for (size_t generation = 0; generation < 10; ) {
+            if (random_.nextDouble() <= P_C)
+            {
+                const Solution* firstParent = 0;
+                const Solution* secondParent = 0;
+                binaryTournament(population, firstParent, secondParent);
+                Solution solution = crossover(*firstParent, *secondParent);
+                if (!populationIncludeSolution(population, solution))
+                {
+                    population.push_back(solution);
+                    size_t worst = 0;
+                    for (size_t i = 1; i < population.size(); ++i)
+                        if (population[i].fitness() < population[worst].fitness())
+			                worst = i;
+                    population.erase(population.begin() + worst);
+                    if (worst < best)
+                        --best;
+                    if (solution.fitness() > population[best].fitness())
+                        best = population.size() - 1;
+                    ++generation;
+                }
+            }
+            else
+            {
+                size_t a = random_.nextUnsignedInt(population.size());
+                Solution solution = mutation(population[a]);
+                if (!populationIncludeSolution(population, solution))
+                {
+                    population.push_back(solution);
+                    size_t worst = 0;
+                    for (size_t i = 1; i < population.size(); ++i)
+                        if (population[i].fitness() < population[worst].fitness())
+			                worst = i;
+                    population.erase(population.begin() + worst);
+                    if (worst < best)
+                        --best;
+                    if (solution.fitness() > population[best].fitness())
+                        best = population.size() - 1;
+                    ++generation;
+                }
+            }
+	        
+        }
     }
 
-    void crossover(Solution& first, Solution& second) {
+    bool populationIncludeSolution(const std::vector<Solution>& population, const Solution& solution)
+    {
+        for (std::vector<Solution>::const_iterator s = population.begin(); s != population.end(); ++s) {
+		    if (*s == solution) {
+			    return true;
+		    }
+	    }
+        return false;
+    }
+
+    Solution crossover(const Solution& first, const Solution& second) {
 	    const std::vector<Bin>& firstBins = first.bins();
 	    std::vector<Bin> secondBins = second.bins();
 
-        size_t firstBinStop1 = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * (firstBins.size() - 1));
-        size_t firstBinStop2 = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * firstBins.size());
+        size_t firstBinStop1 = random_.nextUnsignedInt(firstBins.size() - 1);
+        size_t firstBinStop2 = random_.nextUnsignedInt(firstBins.size());
         while (firstBinStop2 <= firstBinStop1)
-            firstBinStop2 = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * firstBins.size());
-        size_t secondBinStop1 = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * (secondBins.size() - 1));
-        size_t secondBinStop2 = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * secondBins.size());
+            firstBinStop2 = random_.nextUnsignedInt(firstBins.size());
+
+        size_t secondBinStop1 = random_.nextUnsignedInt(secondBins.size() - 1);
+        size_t secondBinStop2 = random_.nextUnsignedInt(secondBins.size());
         while (secondBinStop2 <= secondBinStop1)
-            secondBinStop2 = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * secondBins.size());
+            secondBinStop2 = random_.nextUnsignedInt(secondBins.size());
 
         std::vector<ItemPair> insertedItems, leftOutItems;
         for (std::vector<Bin>::const_iterator i = firstBins.begin() + firstBinStop1; i != firstBins.begin() + firstBinStop2; ++i)
@@ -331,25 +413,48 @@ public:
             secondBins.erase(secondBins.begin() + (binsToDelete[i] - i));
 
         fit(secondBins, leftOutItems);
-        mutation(secondBins);
-        int i = 10;
+        return Solution(secondBins);
+        /*mutation(secondBins);
+        int i = 10;*/
     }
 
-    void mutation(Solution& solution)
+    Solution mutation(Solution& solution)
     {
-        mutation(solution.bins());
-    }
-private:
-    void mutation(std::vector<Bin>& bins)
-    {
+        std::vector<Bin> bins = solution.bins();
         std::vector<ItemPair> leftOutItems;
         for (size_t i = 0; i < 3; ++i) {
-            size_t index = static_cast<size_t>(static_cast<double>(std::rand()) / RAND_MAX * (bins.size() - 1));
+            size_t index = random_.nextUnsignedInt(bins.size() - 1);
             Bin& bin = bins[index];
             leftOutItems.insert(leftOutItems.end(), bin.items().begin(), bin.items().end());
             bins.erase(bins.begin() + index);
         }
         fit(bins, leftOutItems);
+        return Solution(bins);
+    }
+private:
+    void binaryTournament(const std::vector<Solution>& population, const Solution*& firstParent, const Solution*& secondParent)
+    {
+        int a = random_.nextUnsignedInt(population.size() - 1);
+        int b = a + random_.nextUnsignedInt(population.size() - a);
+        int c = random_.nextUnsignedInt(population.size() - 1);
+        int d = c + random_.nextUnsignedInt(population.size() - c);
+        if (population[a].fitness() > population[b].fitness() && random_.nextDouble() <= P_BETTER)
+        {
+            firstParent = &population[a];
+        }
+        else
+        {
+            firstParent = &population[b];
+        }
+
+        if (population[c].fitness() > population[d].fitness() && random_.nextDouble() <= P_BETTER)
+        {
+            secondParent = &population[c];
+        }
+        else
+        {
+            secondParent = &population[d];
+        }
     }
 
     void fit(std::vector<Bin>& bins, std::vector<ItemPair>& leftOutItems)
@@ -396,7 +501,11 @@ private:
 
 private:
     Context& context_;
+    Random random_;
 };
+
+double GeneticAlgorithm::P_BETTER = 0.5;
+double GeneticAlgorithm::P_C = 0.5;
 
 int main()
 {
